@@ -1,82 +1,124 @@
-import Head from 'next/head'
-
 export default function Home() {
+  const [shortProdsArray, setShortProdsArray] = useState<
+    {
+      id: string;
+      img: string;
+      name: string;
+      desc: string;
+    }[][]
+  >([]);
+  const [isClient, setIsClient] = useState(false);
+  let isFirst = true;
+  useEffect(() => {
+    let shortArrays: any[] = [];
+
+    for (let i = 0; i < prods.length; i += 3) {
+      shortArrays.push(prods.slice(i, i + 3));
+    }
+
+    setShortProdsArray(shortArrays);
+  }, []);
+  useEffect(() => {
+    setIsClient(true);
+  });
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <div className="bg-blue-200 min-h-screen">
+      {isClient && (
+        <PDFViewer height="600" width="400">
+          <Document>
+            <Page style={styles.body}>
+              <Text style={styles.header} fixed>
+                ARTCOLOR APLIQUES
+              </Text>
 
-      <main className="flex flex-col items-center justify-center flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+              {shortProdsArray.map((prods, i) => {
+                i != 0 && isFirst && (isFirst = false);
+                return (
+                  <View
+                    break={!isFirst && i % 3 === 0}
+                    key={`row-${i}`}
+                    style={styles.row}
+                  >
+                    {prods.map((prod, j) => {
+                      return (
+                        <View key={`card-${j}-row-${i}`} style={styles.card}>
+                          <Image style={styles.image} src={prod.img} />
+                          <Text>{prod.id}</Text>
+                          <Text>{prod.name}</Text>
+                          <Text>{prod.desc}</Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                );
+              })}
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
-
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
+              <Text
+                style={styles.pageNumber}
+                render={({ pageNumber, totalPages }) =>
+                  `${pageNumber} / ${totalPages}`
+                }
+                fixed
+              />
+            </Page>
+          </Document>
+        </PDFViewer>
+      )}
     </div>
-  )
+  );
 }
+
+const styles = StyleSheet.create({
+  body: {
+    paddingTop: 35,
+    paddingBottom: 65,
+    paddingHorizontal: 35,
+  },
+  col: {
+    flexDirection: "column",
+  },
+  row: {
+    width: "100%",
+    marginTop: "4vh",
+    flexDirection: "row",
+    backgroundColor: "#f00",
+  },
+  card: {
+    flex: 1,
+    marginHorizontal: "2vw",
+    backgroundColor: "#0f0",
+  },
+  text: {
+    paddingVertical: "1vh",
+    margin: 12,
+    fontSize: 14,
+    textAlign: "justify",
+    fontFamily: "Times-Roman",
+  },
+  image: {
+    width: "100%",
+    height: 120,
+    objectFit: "cover",
+  },
+  pageNumber: {
+    position: "absolute",
+    fontSize: 12,
+    bottom: 30,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    color: "grey",
+  },
+});
+
+import prods from "../dummy/prods";
+import {
+  Page,
+  Text,
+  View,
+  Image,
+  Document,
+  StyleSheet,
+  PDFViewer,
+} from "@react-pdf/renderer";
+import { useEffect, useState } from "react";
